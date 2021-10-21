@@ -36,7 +36,7 @@ def mergeCost(a, b):
     return (a*b)
 
 #----------------------------------------
-def makeKeytable(fileName, tableName):
+def makeKeytable(fileName, tableName, priorKeyMap = None):
 
     print('loading %s ...' % fileName)
 
@@ -146,6 +146,11 @@ def makeKeytable(fileName, tableName):
                 scoreValue = None        
 
             rowData[fileMap['recordField']] = str(rowData[fileMap['recordField']]) + '|DS=' + str(sourceValue)
+
+            #--filter for records not provided in the truth set
+            if priorKeyMap and rowData[fileMap['recordField']] not in priorKeyMap['records']:
+                continue
+
             if not rowData[fileMap['clusterField']]:
                 nextMissingCluster_id += 1
                 rowData[fileMap['clusterField']] = '(sic) ' + str(nextMissingCluster_id)
@@ -166,7 +171,7 @@ def erCompare(fileName1, fileName2, outputRoot):
         return 1
 
     #--load the first file into a database table (this is the newer run or candidate for adoption)
-    fileMap1 = makeKeytable(fileName1, 'newer')
+    fileMap1 = makeKeytable(fileName1, 'newer', fileMap2)
     if not fileMap1:
         return 1
 
